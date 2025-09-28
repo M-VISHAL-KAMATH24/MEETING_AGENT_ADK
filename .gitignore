@@ -1,0 +1,91 @@
+Byte-compiled / optimizations
+pycache/
+*.py[cod]
+*$py.class
+
+Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.python-env/
+pip-wheel-metadata/
+
+Environment/config keys
+.env
+.env.*
+.env
+.ini.local
+secrets.json
+credentials.json
+
+OS junk
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+Logs and runtime
+*.log
+logs/
+*.pid
+*.sqlite3
+instance/
+cache/
+.cache/
+.ipynb_checkpoints/
+
+Build/packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+wheelhouse/
+
+Tools and editors
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.code-workspace
+
+Audio/model artifacts
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+audio/
+records/
+models/
+tts_outputs/
+whisper_cache/
+coqui_cache/
+
+Coverage/testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+Data files
+data/
+data/.csv
+data/.parquet
+datasets/
+tmp/
+temp/
+*.tmp
+
+Docker/containers
+*.tar
+*.img
+*.iso
+docker-data/
+
+Node/web (if any frontend)
+node_modules/
+npm-debug.log*
+yarn-error.log*
