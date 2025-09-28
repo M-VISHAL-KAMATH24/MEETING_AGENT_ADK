@@ -1,6 +1,5 @@
 import datetime
 from google.adk.agents import Agent
-
 # --- Tool 1: For saving general notes ---
 
 def save_note(note: str) -> dict:
@@ -53,7 +52,7 @@ def save_action_item(action_item: str) -> dict:
 # --- The Enhanced Agent Definition ---
 
 root_agent = Agent(
-    name="enhanced_note_taker_agent",
+    name="note_taker_agent",
     model="gemini-2.0-flash",
     description="An agent that saves notes and also identifies and saves action items.",
     instruction="""
