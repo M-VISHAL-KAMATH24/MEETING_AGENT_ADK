@@ -1,9 +1,7 @@
 import datetime
 from google.adk.agents import Agent
 
-# --- Step 1: Define the Custom Tool ---
-# A tool is just a Python function. The ADK automatically understands
-# the function name, its parameters, and its docstring.
+# --- Tool 1: For saving general notes ---
 
 def save_note(note: str) -> dict:
     """
@@ -16,45 +14,65 @@ def save_note(note: str) -> dict:
         A dictionary confirming the status of the operation.
     """
     try:
-        # We'll name the file based on the current date.
         filename = f"meeting_notes_{datetime.date.today()}.txt"
-        
-        # 'a' mode appends the note to the file if it exists,
-        # or creates it if it doesn't.
         with open(filename, 'a') as f:
             f.write(f"- {note}\\n")
-            
-        print(f"DEBUG: Note '{note}' saved to {filename}") # For our own debugging
         
-        # It's good practice for tools to return a status.
+        print(f"DEBUG: Note '{note}' saved to {filename}")
         return {"status": "success", "message": f"Note saved to {filename}."}
         
     except Exception as e:
         print(f"ERROR: Failed to save note. {e}")
         return {"status": "error", "message": str(e)}
 
-# --- Step 2: Define the Agent ---
-# We create a new agent and pass our new `save_note` function
-# into the 'tools' list.
+# --- Tool 2: For saving specific action items ---
+
+def save_action_item(action_item: str) -> dict:
+    """
+    Saves a specific action item to a file named 'action_items.txt'.
+
+    Args:
+        action_item (str): The text of the action item to be saved.
+    
+    Returns:
+        A dictionary confirming the status of the operation.
+    """
+    try:
+        filename = f"action_items_{datetime.date.today()}.txt"
+        with open(filename, 'a') as f:
+            f.write(f"- {action_item}\\n")
+        
+        print(f"DEBUG: Action Item '{action_item}' saved to {filename}")
+        return {"status": "success", "message": f"Action item saved to {filename}."}
+        
+    except Exception as e:
+        print(f"ERROR: Failed to save action item. {e}")
+        return {"status": "error", "message": str(e)}
+
+
+# --- The Enhanced Agent Definition ---
 
 root_agent = Agent(
-    name="note_taker_agent",
+    name="enhanced_note_taker_agent",
     model="gemini-2.0-flash",
-    description="An agent that can save notes to a file.",
+    description="An agent that saves notes and also identifies and saves action items.",
     instruction="""
-    You are a helpful meeting assistant. Your primary function is to
-    take notes when the user asks you to.
-    
-    When a user says something like "take a note", "save this", or
-    "remember that", you must call the `save_note` tool.
-    
-    Pass the user's exact words as the 'note' parameter to the tool.
-    After the tool is called, confirm to the user that the note has been saved.
+    You are an intelligent meeting assistant with two primary tools:
+    1. `save_note`: For general note-taking.
+    2. `save_action_item`: For specific, actionable tasks.
+
+    Your job is to listen to the user and decide which tool to use.
+
+    - If the user's request is a general statement to be remembered,
+      you MUST call the `save_note` tool.
+      Example: "take a note that the budget is approved" -> call save_note(note="the budget is approved")
+
+    - If the user's request contains phrases like "I will," "we need to,"
+      "the next step is," or other clear indicators of a task, you MUST
+      call the `save_action_item` tool.
+      Example: "remember that we need to contact the vendor" -> call save_action_item(action_item="we need to contact the vendor")
+      
+    Always confirm which action you have taken.
     """,
-    tools=[save_note] # Here's the magic!
+    tools=[save_note, save_action_item]
 )
-
-# --- Step 3: Make the Agent Runnable ---
-# The adk run command will look for this 'root_agent' variable.
-# (No need for a __main__ block when using 'adk run')
-
