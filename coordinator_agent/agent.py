@@ -7,21 +7,22 @@ from google.adk.tools import agent_tool
 sys.path.append('..')
 from note_taker_agent.agent import root_agent as note_taker_agent
 from agenda_tracker_agent.agent import root_agent as agenda_tracker_agent
-# Import the new Calendar Agent
 from calendar_agent.agent import root_agent as calendar_agent
+# Import the new Email Agent
+from email_agent.agent import root_agent as email_agent
 
 
 # --- Step 2: Wrap All Agents as Tools ---
-# The tool's name will be derived from the 'name' attribute
-# inside each specialist agent's definition.
+# The tool's name is derived from the 'name' attribute inside each agent's definition.
 note_taker_as_tool = agent_tool.AgentTool(agent=note_taker_agent)
 agenda_tracker_as_tool = agent_tool.AgentTool(agent=agenda_tracker_agent)
-# Wrap the new Calendar Agent
 calendar_as_tool = agent_tool.AgentTool(agent=calendar_agent)
+# Wrap the new Email Agent
+email_as_tool = agent_tool.AgentTool(agent=email_agent)
 
 
-# --- Step 3: Define the Updated Coordinator Agent ---
-# The instructions and tools list are updated to include the new calendar capability.
+# --- Step 3: Define the Final Coordinator Agent ---
+# The instructions and tools list are updated to include all four agents.
 root_agent = Agent(
     name="meeting_coordinator",
     model="gemini-2.0-flash",
@@ -37,12 +38,16 @@ root_agent = Agent(
 
     - If the user's request is about their schedule, upcoming events, or what is on their calendar,
       you MUST use the `calendar_agent` tool.
+      
+    - If the user asks to send a follow-up email or the meeting summary,
+      you MUST use the `email_agent` tool.
 
     Do not try to answer the questions yourself. Your only job is to route the request to the correct tool.
     """,
     tools=[
         note_taker_as_tool,
         agenda_tracker_as_tool,
-        calendar_as_tool  # Add the new tool to the list
+        calendar_as_tool,
+        email_as_tool  # Add the final tool to the list
     ]
 )
