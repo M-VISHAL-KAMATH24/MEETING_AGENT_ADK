@@ -18,6 +18,7 @@ Environment/config keys
 .ini.local
 secrets.json
 credentials.json
+token.json
 
 OS junk
 .DS_Store
@@ -25,6 +26,8 @@ Thumbs.db
 *.swp
 *.swo
 
+**/credentials.json
+**/token.json
 Logs and runtime
 *.log
 logs/
