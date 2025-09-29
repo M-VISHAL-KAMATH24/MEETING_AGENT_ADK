@@ -10,6 +10,9 @@ ENV/
 env/
 .python-env/
 pip-wheel-metadata/
+credentials.json
+token.json
+token_gmail.json
 
 Environment/config keys
 .env
@@ -25,6 +28,9 @@ OS junk
 Thumbs.db
 *.swp
 *.swo
+**/credentials.json
+**/token.json
+
 
 **/credentials.json
 **/token.json
