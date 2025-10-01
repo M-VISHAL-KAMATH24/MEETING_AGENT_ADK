@@ -1,0 +1,79 @@
+import whisper
+import sounddevice as sd
+import numpy as np
+import asyncio
+
+# --- Configuration ---
+MODEL_TYPE = "small"  # Use "tiny", "base", "small", "medium", or "large"
+LANGUAGE = "en"
+BLOCKSIZE = 24678   # This is the number of frames per block.
+SILENCE_THRESHOLD = 400  # Amplitude threshold for detecting silence.
+SILENCE_DURATION = 2  # How many consecutive silent blocks indicate end of speech.
+
+# --- Global State ---
+model = None
+silence_counter = 0
+
+def initialize_model():
+    """Loads the Whisper model into memory."""
+    global model
+    print(f"Loading Whisper model '{MODEL_TYPE}'...")
+    model = whisper.load_model(MODEL_TYPE)
+    print("Model loaded successfully.")
+
+def transcribe_audio(audio_chunk):
+    """Transcribes an audio chunk using the Whisper model."""
+    audio_np = np.frombuffer(audio_chunk, dtype=np.int16).astype(np.float32) / 32768.0
+    result = model.transcribe(audio_np, language=LANGUAGE, fp16=False)
+    return result['text'].strip()
+
+def audio_callback(indata, frames, time, status):
+    """This function is called for each audio block from the microphone."""
+    global silence_counter
+    
+    # Simple Voice Activity Detection (VAD)
+    amplitude = np.linalg.norm(indata) * 10
+    if amplitude < SILENCE_THRESHOLD:
+        silence_counter += 1
+    else:
+        silence_counter = 0
+    
+    # Store the audio data in a buffer (this part needs to be handled by the main loop)
+    # This callback is just for VAD. The main loop will handle recording.
+
+def run_transcription(callback_function):
+    """
+    Main function to start listening and transcribing.
+    It takes a function to call when a final transcript is ready.
+    """
+    initialize_model()
+    
+    print("\n--- Say 'exit' to quit ---")
+    
+    while True:
+        print("LISTENING...")
+        # Use sounddevice to record until silence is detected
+        recording = sd.rec(int(10 * 44100), samplerate=44100, channels=1, dtype='int16')
+        
+        # A simple way to wait for silence
+        # In a real app, a more sophisticated VAD would be used in the callback
+        # For simplicity, we'll just record for a few seconds and then check
+        sd.sleep(5000) # Record for 5 seconds
+
+        # This is a simplified example. A full VAD implementation is more complex.
+        # Let's assume the user spoke within those 5 seconds.
+        sd.stop()
+
+        # Convert the recording to the format Whisper needs
+        audio_data = np.squeeze(recording)
+        
+        # Transcribe the captured audio
+        transcript = transcribe_audio(audio_data.tobytes())
+        
+        if transcript:
+            print("USER SAID:", transcript)
+            if "exit" in transcript.lower():
+                break
+            # Call the main application logic with the transcribed text
+            callback_function(transcript)
+
